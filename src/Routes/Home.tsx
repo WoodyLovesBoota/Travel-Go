@@ -1,13 +1,17 @@
 import styled from "styled-components";
 import { useForm } from "react-hook-form";
 import { useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const { register, handleSubmit } = useForm<IForm>();
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const navigate = useNavigate();
+  const { ref, ...rest } = register("destination");
 
   const onValid = (data: IForm) => {
-    console.log(data);
+    // console.log(data);
+    navigate(`/${data.destination}`);
   };
 
   const handleWidth = () => {
@@ -20,8 +24,12 @@ const Home = () => {
       <Title>Where to Travel?</Title>
       <Form onSubmit={handleSubmit(onValid)}>
         <Input
-          {...register("destination", { required: true, minLength: 1 })}
-          ref={inputRef}
+          {...rest}
+          name="destination"
+          ref={(e) => {
+            ref(e);
+            inputRef.current = e;
+          }}
           onKeyDown={handleWidth}
           onKeyUp={handleWidth}
           autoFocus
