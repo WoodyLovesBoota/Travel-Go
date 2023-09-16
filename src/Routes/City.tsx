@@ -5,10 +5,29 @@ import { useForm } from "react-hook-form";
 import MyComponent from "../Components/MyComponent";
 import MapComponent from "../Components/MapComponent";
 import MapTest from "../Components/MapTest";
+import { useQuery } from "react-query";
+import { IGetPlaceResult, getPlaceResult } from "../api";
+import { useState } from "react";
 
 const City = () => {
   const { destination } = useParams();
   const { register, handleSubmit } = useForm<IForm>();
+  const [value, setValue] = useState("");
+
+  const { data, isLoading, refetch } = useQuery<IGetPlaceResult>(
+    ["place", value],
+    () => getPlaceResult(value),
+    { enabled: !!value }
+  );
+
+  // const { data, isLoading } = useQuery<IGetPlaceResult>(["place", "searchPlace"], () =>
+  //   getPlaceResult("seoul")
+  // );
+
+  const onValid = (data: IForm) => {
+    setValue(data.keyword);
+  };
+
   return (
     <Wrapper>
       <Column>
@@ -42,11 +61,19 @@ const City = () => {
       <Column>
         <Div>
           {/* <MapComponent /> */}
-          <MapTest />
+          <MapTest destination={destination} />
         </Div>
-        <Form>
+        <Form onSubmit={handleSubmit(onValid)}>
           <InputTitle>{destination} 에서의 일정을 추가해주세요!</InputTitle>
-          <Input></Input>
+          {isLoading ? null : (
+            <div>
+              <h2> {data?.candidates[0].name}</h2>
+              <h2> {data?.candidates[0].formatted_address}</h2>
+              <h2> {data?.candidates[0].geometry.location.lat}</h2>
+              <h2> {data?.candidates[0].geometry.location.lng}</h2>
+            </div>
+          )}
+          <Input {...register("keyword", { required: true })}></Input>
         </Form>
       </Column>
     </Wrapper>
@@ -54,6 +81,7 @@ const City = () => {
 };
 
 export default City;
+
 const Div = styled.div`
   height: 600px;
 `;
