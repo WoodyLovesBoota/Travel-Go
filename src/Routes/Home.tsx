@@ -10,7 +10,6 @@ const Home = () => {
   const { ref, ...rest } = register("destination");
 
   const onValid = (data: IForm) => {
-    // console.log(data);
     navigate(`/${data.destination}`);
   };
 
